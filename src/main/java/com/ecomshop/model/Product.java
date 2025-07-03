@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
+
 @NoArgsConstructor
 @Entity
 public class Product {
@@ -25,10 +25,24 @@ public class Product {
     private int inventory;  // we can also give it quantity inventory is quantity here
     private String description;
 
+    //many products belong to one category
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     //which means one then product is being deleted all the images that are associated with that product are going to be deleted
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images; // one product has many to many images
 
+
+
+    public Product(String name, String brand, BigDecimal price, int inventory, String description, Category category) {
+        this.name = name;
+        this.brand = brand;
+        this.price = price;
+        this.inventory = inventory;
+        this.description = description;
+        this.category = category;
+
+    }
 }
