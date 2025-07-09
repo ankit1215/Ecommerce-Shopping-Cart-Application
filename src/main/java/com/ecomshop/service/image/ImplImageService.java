@@ -1,7 +1,10 @@
 package com.ecomshop.service.image;
 
+import com.ecomshop.dto.ImageDto;
 import com.ecomshop.model.Image;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface ImplImageService {
 
@@ -9,7 +12,7 @@ public interface ImplImageService {
 
     void deleteImageById(Long id);
 
-    Image saveImage(MultipartFile file, Long productId);
+    List<ImageDto> saveImages(List<MultipartFile> files, Long productId);
 
-    void updateImage(MultipartFile file, Long productId);
+    void updateImage(MultipartFile file, Long imageId);
 }
