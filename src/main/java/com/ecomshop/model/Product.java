@@ -11,7 +11,6 @@ import java.util.List;
 
 @Getter
 @Setter
-
 @NoArgsConstructor
 @Entity
 public class Product {

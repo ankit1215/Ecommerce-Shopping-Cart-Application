@@ -23,13 +23,4 @@ public class AddProductRequest {
     private int inventory;  // we can also give it quantity inventory is quantity here
     private String description;
     private Category category;
-
-    public AddProductRequest(String name, Category category, String brand, BigDecimal price, int inventory, String description) {
-        this.name = name;
-        this.category = category;
-        this.brand = brand;
-        this.price = price;
-        this.inventory = inventory;
-        this.description = description;
-    }
 }
