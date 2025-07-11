@@ -27,7 +27,7 @@ public class ImageController {
     @Autowired
     ImageService imageService;
 
-    @GetMapping("upload")
+    @PostMapping("/upload")
     public ResponseEntity<ApiResponse> saveImages(@RequestParam List<MultipartFile> files, @RequestParam Long productId){
         try{
             List<ImageDto> imageDtos = imageService.saveImages(files, productId);

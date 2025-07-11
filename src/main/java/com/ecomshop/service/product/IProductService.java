@@ -1,5 +1,6 @@
 package com.ecomshop.service.product;
 
+import com.ecomshop.dto.ProductDto;
 import com.ecomshop.model.Product;
 import com.ecomshop.request.AddProductRequest;
 import com.ecomshop.request.UpdateProductRequest;
@@ -31,6 +32,7 @@ public interface IProductService {
     Long countProductsByBrandAndName(String brand, String name);
 
 
+    List<ProductDto> getConvertedProducts(List<Product> products);
 
-
+    ProductDto convertToDto(Product product);
 }

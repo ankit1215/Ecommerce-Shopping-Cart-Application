@@ -1,13 +1,17 @@
 package com.ecomshop.service.product;
 
+import com.ecomshop.dto.ImageDto;
+import com.ecomshop.dto.ProductDto;
 import com.ecomshop.exception.ProductNotFoundException;
 import com.ecomshop.model.Category;
+import com.ecomshop.model.Image;
 import com.ecomshop.model.Product;
 import com.ecomshop.repository.CategoryRepository;
+import com.ecomshop.repository.ImageRepository;
 import com.ecomshop.repository.ProductRepository;
 import com.ecomshop.request.AddProductRequest;
 import com.ecomshop.request.UpdateProductRequest;
-import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,13 @@ public class ProductService implements IProductService{
 
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
+    ImageRepository imageRepository;
+
 
     @Override
     public Product addProduct(AddProductRequest request) {
@@ -117,5 +128,21 @@ public class ProductService implements IProductService{
     @Override
     public Long countProductsByBrandAndName(String brand, String name) {
         return productRepository.countByBrandAndName(brand, name);
+    }
+
+    @Override
+    public List<ProductDto> getConvertedProducts(List<Product> products) {
+        return products.stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public ProductDto convertToDto(Product product){
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos = images.stream()
+                .map(image -> modelMapper.map(image, ImageDto.class))
+                .toList();
+        productDto.setImages(imageDtos);
+        return productDto;
     }
 }
