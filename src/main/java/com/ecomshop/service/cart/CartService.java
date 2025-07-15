@@ -2,16 +2,17 @@ package com.ecomshop.service.cart;
 
 import com.ecomshop.exception.ResourceNotFoundException;
 import com.ecomshop.model.Cart;
-import com.ecomshop.model.CartItem;
 import com.ecomshop.repository.CartItemRepository;
 import com.ecomshop.repository.CartRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
-
+@RequiredArgsConstructor
 public class CartService implements ICartService{
 
     @Autowired
@@ -19,6 +20,8 @@ public class CartService implements ICartService{
 
     @Autowired
     CartItemRepository cartItemRepository;
+
+    private final AtomicLong cartIdGenerator = new AtomicLong(0);
 
     @Override
     public Cart getCart(Long id) {
@@ -42,5 +45,13 @@ public class CartService implements ICartService{
         Cart cart = getCart(id);
         return cart.getTotalAmount();
 
+    }
+
+    @Override
+    public Long initializeNewCart(){
+        Cart newCart = new Cart();
+        Long newCartId = cartIdGenerator.incrementAndGet();
+        newCart.setId(newCartId);
+        return cartRepository.save(newCart).getId();
     }
 }
