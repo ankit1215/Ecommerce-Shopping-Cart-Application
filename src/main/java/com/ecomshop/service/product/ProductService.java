@@ -134,14 +134,36 @@ public class ProductService implements IProductService{
     public List<ProductDto> getConvertedProducts(List<Product> products) {
         return products.stream().map(this::convertToDto).toList();
     }
+//
+//    @Override
+//    public ProductDto convertToDto(Product product){
+//        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+//        List<Image> images = imageRepository.findByProductId(product.getId());
+//        List<ImageDto> imageDtos = images.stream()
+//                .map(image -> modelMapper.map(image, ImageDto.class))
+//                .toList();
+//        productDto.setImages(imageDtos);
+//        return productDto;
+//    }
 
     @Override
-    public ProductDto convertToDto(Product product){
+    public ProductDto convertToDto(Product product) {
         ProductDto productDto = modelMapper.map(product, ProductDto.class);
+
+        // Fetch images from DB
         List<Image> images = imageRepository.findByProductId(product.getId());
+
+        // Manually map to ImageDto
         List<ImageDto> imageDtos = images.stream()
-                .map(image -> modelMapper.map(image, ImageDto.class))
+                .map(image -> {
+                    ImageDto imageDto = new ImageDto();
+                    imageDto.setId(image.getId());
+                    imageDto.setFileName(image.getFileName());
+                    imageDto.setDownloadUrl("/image/download/" + image.getId());
+                    return imageDto;
+                })
                 .toList();
+
         productDto.setImages(imageDtos);
         return productDto;
     }

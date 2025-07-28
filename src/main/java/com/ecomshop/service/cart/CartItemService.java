@@ -7,6 +7,7 @@ import com.ecomshop.model.Product;
 import com.ecomshop.repository.CartItemRepository;
 import com.ecomshop.repository.CartRepository;
 import com.ecomshop.service.product.IProductService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,14 +36,12 @@ public class CartItemService implements ICartItemService {
         //4. If Yes, then increase the quantity with the requested quantity
         //5. If No, then initiate a new CartItem entry.
         Cart cart = iCartService.getCart(cartId);
-
         Product product = iProductService.getProductById(productId);
-
         CartItem cartItem = cart.getItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst().orElse(new CartItem());
-        if(cartItem.getId() == null){
+        if (cartItem.getId() == null) {
             cartItem.setCart(cart);
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
@@ -54,8 +53,6 @@ public class CartItemService implements ICartItemService {
         cart.addItem(cartItem);
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
-
-
     }
 
     @Override
@@ -73,22 +70,25 @@ public class CartItemService implements ICartItemService {
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
-                .ifPresent(item ->{
-                        item.setQuantity(quantity);
-                        item.setUnitPrice(item.getProduct().getPrice());
-                        item.setTotalPrice();
+                .ifPresent(item -> {
+                    item.setQuantity(quantity);
+                    item.setUnitPrice(item.getProduct().getPrice());
+                    item.setTotalPrice();
                 });
-        BigDecimal totalAmount = cart.getTotalAmount();
+        BigDecimal totalAmount = cart.getItems()
+                .stream().map(CartItem ::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         cart.setTotalAmount(totalAmount);
         cartRepository.save(cart);
     }
 
     @Override
-    public CartItem getCartItem(Long cartId, Long productId){
+    public CartItem getCartItem(Long cartId, Long productId) {
         Cart cart = iCartService.getCart(cartId);
-            return cart.getItems()
+        return cart.getItems()
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst().orElseThrow(() -> new ResourceNotFoundException("Item Not Found"));
+                .findFirst().orElseThrow(() -> new ResourceNotFoundException("Item not found"));
     }
 }

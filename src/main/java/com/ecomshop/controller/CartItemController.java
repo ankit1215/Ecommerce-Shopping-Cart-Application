@@ -2,8 +2,8 @@ package com.ecomshop.controller;
 
 import com.ecomshop.exception.ResourceNotFoundException;
 import com.ecomshop.response.ApiResponse;
+import com.ecomshop.service.cart.CartService;
 import com.ecomshop.service.cart.ICartItemService;
-import com.ecomshop.service.cart.ICartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,28 +18,27 @@ public class CartItemController {
     ICartItemService iCartItemService;
 
     @Autowired
-    ICartService iCartService;
+    CartService cartService;
 
 
-    @PostMapping("/addItem")
-    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam Long cartId,
+    @PostMapping("/addCartItem")
+    public ResponseEntity<ApiResponse> addItemToCart(@RequestParam(required = false) Long cartId,
                                                      @RequestParam Long productId,
-                                                     @RequestParam Integer quantity){
-
-        if(cartId == null){
-                cartId = iCartService.initializeNewCart();
-        }
-
+                                                     @RequestParam Integer quantity) {
         try {
+            if (cartId == null) {
+                cartId = cartService.initializeNewCart();
+            }
             iCartItemService.addItemToCart(cartId, productId, quantity);
-            return ResponseEntity.ok(new ApiResponse("Item Added Successfully!", null));
+            return ResponseEntity.ok(new ApiResponse("Add Item Success", null));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
     }
 
+    //itemId is a productId
     @DeleteMapping("/{cartId}/item/{itemId}/remove")
-    public ResponseEntity<ApiResponse> removeItemFromCart(@PathVariable Long cartId, @PathVariable Long itemId){
+    public ResponseEntity<ApiResponse> removeItemFromCart(@PathVariable Long cartId, @PathVariable Long itemId) {
         try {
             iCartItemService.removeItemFromCart(cartId, itemId);
             return ResponseEntity.ok(new ApiResponse("Item Removed Successfully!", null));
@@ -51,7 +50,7 @@ public class CartItemController {
     @PutMapping("/{cartId}/item/{itemId}/update")
     public ResponseEntity<ApiResponse> updateItemQuantity(@PathVariable Long cartId,
                                                           @PathVariable Long itemId,
-                                                          @RequestParam Integer quantity){
+                                                          @RequestParam Integer quantity) {
         try {
             iCartItemService.updateItemQuantity(cartId, itemId, quantity);
             return ResponseEntity.ok(new ApiResponse("Item Updated Successfully!", null));
