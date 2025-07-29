@@ -9,7 +9,7 @@ import com.ecomshop.model.Product;
 import com.ecomshop.repository.OrderRepository;
 import com.ecomshop.repository.ProductRepository;
 import com.ecomshop.service.cart.CartService;
-import org.aspectj.weaver.ast.Or;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,7 @@ public class OrderService implements IOrderService{
     @Autowired
     CartService cartService;
 
+    @Transactional
     @Override
     public Order placeOrder(Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
@@ -75,5 +76,10 @@ public class OrderService implements IOrderService{
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order Not Found"));
+    }
+
+    @Override
+    public List<Order> getUserOrders(Long userId){
+        return orderRepository.findByUserId(userId);
     }
 }
