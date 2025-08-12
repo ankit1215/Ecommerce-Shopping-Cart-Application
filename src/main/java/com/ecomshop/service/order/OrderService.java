@@ -1,5 +1,6 @@
 package com.ecomshop.service.order;
 
+import com.ecomshop.dto.OrderDto;
 import com.ecomshop.enums.OrderStatus;
 import com.ecomshop.exception.ResourceNotFoundException;
 import com.ecomshop.model.Cart;
@@ -10,6 +11,7 @@ import com.ecomshop.repository.OrderRepository;
 import com.ecomshop.repository.ProductRepository;
 import com.ecomshop.service.cart.CartService;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,9 @@ public class OrderService implements IOrderService{
 
     @Autowired
     CartService cartService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Transactional
     @Override
@@ -73,13 +78,20 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public Order getOrder(Long orderId) {
+    public OrderDto getOrder(Long orderId) {
         return orderRepository.findById(orderId)
+                .map(this::convertToDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Order Not Found"));
     }
 
     @Override
-    public List<Order> getUserOrders(Long userId){
-        return orderRepository.findByUserId(userId);
+    public List<OrderDto> getUserOrders(Long userId){
+        List<Order> orders=orderRepository.findByUserId(userId);
+        return orders.stream().map(this::convertToDto).toList();
+
+    }
+
+    private OrderDto convertToDto(Order order){
+        return modelMapper.map(order, OrderDto.class);
     }
 }

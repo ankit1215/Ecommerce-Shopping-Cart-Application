@@ -21,7 +21,7 @@ public class CartController {
 
 
     @Autowired
-    private ICartService iCartService;
+    ICartService iCartService;
 
 //    @GetMapping("/{cartId}/my-cart")
 //    public ResponseEntity<ApiResponse> getCart( @PathVariable Long cartId) {

@@ -1,18 +1,26 @@
 package com.ecomshop.service.user;
 
+import com.ecomshop.dto.UserDto;
+import com.ecomshop.exception.AlreadyExitsException;
 import com.ecomshop.exception.ResourceNotFoundException;
 import com.ecomshop.model.User;
 import com.ecomshop.repository.UserRepository;
 import com.ecomshop.request.CreateUserRequest;
 import com.ecomshop.request.UpdateUserRequest;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService{
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public User getUserById(Long userId) {
@@ -22,7 +30,15 @@ public class UserService implements IUserService{
 
     @Override
     public User createUser(CreateUserRequest request) {
-        return null;
+        return Optional.of(request)
+                .filter(user -> !userRepository.existsByEmail(request.getEmail()))
+                .map(req ->{
+                    User user = new User();
+                    user.setEmail(request.getEmail());
+                    user.setFirstName(request.getFirstName());
+                    user.setLastName(request.getLastName());
+                    return userRepository.save(user);
+                }).orElseThrow(()-> new AlreadyExitsException("Oops! " + request.getEmail() + " already exists!"));
     }
 
     @Override
@@ -41,5 +57,10 @@ public class UserService implements IUserService{
         userRepository.findById(userId).ifPresentOrElse(userRepository::delete, () ->{
             throw new ResourceNotFoundException("User not Found!");
         });
+    }
+
+    @Override
+    public UserDto convertUserToDto(User user){
+        return modelMapper.map(user, UserDto.class);
     }
 }
